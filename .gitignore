@@ -1,0 +1,16 @@
+*.avi
+*.mp4
+*.pdf
+*.eps
+*.npz
+*.dat
+*.prof
+*.pyc
+*.pyo
+*.so
+*.hdf5
+build
+
+# Things specific to this project #
+###################################
+

@@ -1,0 +1,3 @@
+# Ignore the logging data from running compare_tables.py
+*.log
+
