@@ -19,6 +19,7 @@ The package can also be installed via the setuptools setup.py script:
 python setup.py
 ```
 
+PyMTensor requires Python 3.5 or higher, NumPy version 1.6 or greater, and SymPy version 1.7 or greater.
 TODO: add Windows installation instructions
 
 # Quick Start
@@ -39,7 +40,7 @@ st = SymbolicTensor("abacd", 'c')
 fullsol, polyring = st.sol_details(symops)
 
 # Convert to Voigt notation and print the tensor
-print(to_voigt(fullsol))
+print(fullsol)
 ```
 
 For more examples please refer to the `pymtensor/examples/compare_tables.py` file.
