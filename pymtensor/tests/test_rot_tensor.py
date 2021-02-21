@@ -7,20 +7,40 @@ from sympy import symbols, MatrixSymbol
 
 
 class TestRank1(TestCase):
-
-
+    """
+    Test numerical rotations routines `rotx`, `roty`, `rotz`, `rotu`.
+    """
+    
     def test_unitvecs(self):
-        unitvecs = identity(3, dtype=float)
         theta = pi / 2e0
-        rz = rotz(theta)
-        ry = roty(theta)
+        # 90-degree rotation around <1, 0, 0>
         rx = rotx(theta)
-        arbrz = rotu(theta, array([0, 0, 1e0]))
-        arbry = rotu(theta, array([0, 1e0, 0]))
+        rx_exact = array([[ 1,  0,  0],
+                          [ 0,  0, -1],
+                          [ 0,  1,  0]])
+        assert_allclose(rx, rx_exact, verbose=True, atol=1e-12)
+        # 90-degree rotation around <0, 1, 0>
+        ry = roty(theta)
+        ry_exact = array([[ 0,  0,  1],
+                          [ 0,  1,  0],
+                          [-1,  0,  0]])
+        assert_allclose(ry, ry_exact, verbose=True, atol=1e-12)
+        # 90-degree rotation around <0, 0, 1>
+        rz = rotz(theta)
+        rz_exact = array([[ 0, -1,  0],
+                          [ 1,  0,  0],
+                          [ 0,  0,  1]])
+        assert_allclose(rz, rz_exact, verbose=True, atol=1e-12)
+        # Test `rotu`
         arbrx = rotu(theta, array([1e0, 0, 0]))
-        assert_array_equal(rz, arbrz, verbose=False)
+        assert_array_equal(rx, arbrx, verbose=True)
+        arbry = rotu(theta, array([0, 1e0, 0]))
+        assert_array_equal(ry, arbry, verbose=True)
+        arbrz = rotu(theta, array([0, 0, 1e0]))
+        assert_array_equal(rz, arbrz, verbose=True)
         ghalf = rotx(pi / 4e0)
         print('Test successive rotations')
+        unitvecs = identity(3, dtype=float)
         unitvecs[0,1]=-2 
         print(unitvecs)
         print(rot_tensor(rx, unitvecs))

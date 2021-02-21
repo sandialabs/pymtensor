@@ -1,6 +1,7 @@
 # from numpy import array, pi, einsum
 from pymtensor.symmetry import (deg2rad, rotx, rotz, roty, rotu,
-    SgSymOps, SymbolicTensor)
+    SgSymOps)
+from pymtensor.sym_tensor import SymbolicTensor
 from pymtensor.rot_tensor import to_voigt
 # We use the NumPy testing suite to make it easier to compare arrays
 from numpy.testing import (assert_equal, assert_allclose, assert_array_equal, 

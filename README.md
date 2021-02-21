@@ -20,6 +20,7 @@ python setup.py
 ```
 
 PyMTensor requires Python 3.5 or higher, NumPy version 1.6 or greater, and SymPy version 1.7 or greater.
+The optional dependency gmpy2 for SymPy is highly recommended for speed improvements.
 TODO: add Windows installation instructions
 
 # Quick Start

@@ -5,7 +5,8 @@ from numpy import array
 from sympy.parsing.sympy_parser import parse_expr
 from sympy import Symbol
 
-from pymtensor.symmetry import SgSymOps, SymbolicTensor
+from pymtensor.symmetry import SgSymOps
+from pymtensor.sym_tensor import SymbolicTensor
 from pymtensor.rot_tensor import to_voigt
 
 
