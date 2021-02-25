@@ -1,6 +1,6 @@
 from numpy import (abs, array, eye, rint)
 # from scipy.linalg import lu, svd
-from sympy import acos, cos, pi, sin, sqrt
+from sympy import acos, cos, pi, sin, sqrt, Rational
 
 
 def round_if_safe(val, atol):
@@ -339,3 +339,95 @@ class SgSymOps(object):
         return ops, group
     
     
+class RedSgSymOps(object):
+    
+    def __init__(self):
+        symops = {}
+        # Generator matrices
+        symops['1'] = eye(3, dtype=int)
+        symops['1d'] = -symops['1']
+        symops['2parZ1'] = array([[ 1,  0,  0],
+                                  [ 0, -1,  0],
+                                  [ 0,  0, -1]])
+        symops['2parZ2'] = array([[-1,  0,  0],
+                                  [ 0,  1,  0],
+                                  [ 0,  0, -1]])
+        symops['2parZ3'] = array([[-1,  0,  0],
+                                  [ 0, -1,  0],
+                                  [ 0,  0,  1]])
+        symops['mperZ1'] = array([[-1,  0,  0],
+                                  [ 0,  1,  0],
+                                  [ 0,  0,  1]])
+        symops['mperZ2'] = array([[ 1,  0,  0],
+                                  [ 0, -1,  0],
+                                  [ 0,  0,  1]])
+        symops['mperZ3'] = array([[ 1,  0,  0],
+                                  [ 0,  1,  0],
+                                  [ 0,  0, -1]])
+        symops['mper[11d0]'] = array([[ 0,  1,  0],
+                                     [ 1,  0,  0],
+                                     [ 0,  0, -1]])
+        rt3 = sqrt(3)
+        onehalf = Rational(1, 2)
+        rt3 *=  onehalf
+        symops['3parZ3'] = array([[  -onehalf, rt3,   0],
+                                  [-rt3,  -onehalf,   0],
+                                  [   0,   0,   1]])
+        symops['3dparZ3'] = -symops['3parZ3']
+        symops['3par[111]'] = array([[ 0,  1,  0],
+                                     [ 0,  0,  1],
+                                     [ 1,  0,  0]])
+        symops['3dpar[111]'] = -symops['3par[111]']
+        symops['4parZ3'] = array([[ 0,  1,  0],
+                                  [-1,  0,  0],
+                                  [ 0,  0,  1]])
+        symops['4dparZ3'] = -symops['4parZ3']
+        symops['6parZ3'] = array([[   onehalf, rt3,   0],
+                                  [-rt3,   onehalf,   0],
+                                  [   0,   0,   1]])
+        symops['6dparZ3'] = -symops['6parZ3']
+        group = {}
+        def symtuple(names):
+            return tuple(symops[name] for name in names)
+        group["1"] = symtuple(['1'])
+        group["1d"] = symtuple(['1d'])
+        group["2"] = symtuple(['2parZ2'])
+        group["m"] = symtuple(['mperZ2'])
+        group["2/m"] = symtuple(['2parZ2', 'mperZ2'])
+        group["222"] = symtuple(['2parZ1', '2parZ2'])
+        group["mm2"] = symtuple(['mperZ1', 'mperZ2'])
+        group["mmm"] = symtuple(['mperZ1', 'mperZ2', 'mperZ3'])
+        group["4"] = symtuple(['4parZ3'])
+        group["4d"] = symtuple(['4dparZ3'])
+        group["4/m"] = symtuple(['4parZ3', 'mperZ3'])
+        group["422"] = symtuple(['4parZ3', '2parZ1'])
+        group["4mm"] = symtuple(['4parZ3', 'mperZ1'])
+        group["4d2m"] = symtuple(['4dparZ3', '2parZ1'])
+        group["4/mmm"] = symtuple(['4parZ3', 'mperZ3', 'mperZ1'])
+        group["3"] = symtuple(['3parZ3'])
+        group["3d"] = symtuple(['3dparZ3'])
+        group["32"] = symtuple(['3parZ3', '2parZ1'])
+        group["3m"] = symtuple(['3parZ3', 'mperZ1'])
+        group["3dm"] = symtuple(['3dparZ3', 'mperZ1'])
+        group["6"] = symtuple(['6parZ3'])
+        group["6d"] = symtuple(['6dparZ3'])
+        group["6/m"] = symtuple(['6parZ3', 'mperZ3'])
+        group["622"] = symtuple(['6parZ3', '2parZ1'])
+        group["6mm"] = symtuple(['6parZ3', 'mperZ1'])
+        group["6dm2"] = symtuple(['6dparZ3', 'mperZ1'])
+        group["6/mmm"] = symtuple(['6parZ3', 'mperZ3', 'mperZ1'])
+        group["23"] = symtuple(['2parZ3', '3par[111]'])
+        group["m3d"] = symtuple(['mperZ1', '3dpar[111]'])
+        group["432"] = symtuple(['4parZ3', '3par[111]'])
+        group["4d3m"] = symtuple(['4dparZ3', '3par[111]'])
+        group["m3dm"] = symtuple(['4parZ3', '3dpar[111]', 'mper[11d0]'])
+        self.group = group
+    
+    def __call__(self, cname):
+        """
+        Parameters
+        ----------
+        cname: string
+            Class name
+        """
+        return self.group[cname]

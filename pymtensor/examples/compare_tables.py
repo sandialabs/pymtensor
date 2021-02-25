@@ -5,7 +5,7 @@ from numpy import array
 from sympy.parsing.sympy_parser import parse_expr
 from sympy import Symbol
 
-from pymtensor.symmetry import SgSymOps
+from pymtensor.symmetry import SgSymOps, RedSgSymOps
 from pymtensor.sym_tensor import SymbolicTensor
 from pymtensor.rot_tensor import to_voigt
 
@@ -61,6 +61,8 @@ def compare_tables(indices_symbol, symbolnames, colnames, data):
                '6dm2': r'$\bar{6}m2$', '6/mmm': r'$6/mmm$'}
     sg = SgSymOps()
     crystalclasses = sg.flat_ieee.keys()
+#     sg = RedSgSymOps()
+#     crystalclasses = sg.group.keys()
     # Debug misspellings in Kube tables
 #     print('number of crystalclasses = {}'.format(len(crystalclasses)))
 #     for crystalclass in crystalclasses:
@@ -117,21 +119,21 @@ def capture_comparisons(tname, indices_symbols, fext='.csv', tdir=None,
 if __name__ == '__main__':
     tdir = 'tensor_tables'
     jobs = {
-        'a_{_1ijklmn}': 'ABB', # 1st even electroelastic
-        'b_{ijkl}': 'AB', # Electrostrictive
-        'c_{_2ijkl}': 'AA', # 2nd order elastic
-        'c_{_3ijklmn}': 'AAA', # 3rd-order elastic
-        'c_{_4ijklmnpq}': 'AAAA', # 4th order elastic
-        'c_{_5ijklmnpqrs}': 'AAAAA', # 5th order elastic
-        'chi_{_2ij}': 'A', # 2nd-order electric permeability
-        'chi_{_3ijk}': 'A3,', # 3rd-order electric permeability
-        'chi_{_4ijkl}': 'A4,', # 4th-order electric permeability
-        'd_{_1ijklm}': 'aBB', # 1st odd electroelastic
-        'd_{_2ijklmnp}': 'aBBB', # 2nd odd electroelastic
-        'd_{_3ijklm}': 'a3,b2', # 3rd odd electroelastic
+#         'a_{_1ijklmn}': 'ABB', # 1st even electroelastic
+#         'b_{ijkl}': 'AB', # Electrostrictive
+#         'c_{_2ijkl}': 'AA', # 2nd order elastic
+#         'c_{_3ijklmn}': 'AAA', # 3rd-order elastic
+#         'c_{_4ijklmnpq}': 'AAAA', # 4th order elastic
+#         'c_{_5ijklmnpqrs}': 'AAAAA', # 5th order elastic
+#         'chi_{_2ij}': 'A', # 2nd-order electric permeability
+#         'chi_{_3ijk}': 'A3,', # 3rd-order electric permeability
+#         'chi_{_4ijkl}': 'A4,', # 4th-order electric permeability
+#         'd_{_1ijklm}': 'aBB', # 1st odd electroelastic
+#         'd_{_2ijklmnp}': 'aBBB', # 2nd odd electroelastic
+#         'd_{_3ijklm}': 'a3,b2', # 3rd odd electroelastic
         'd_{_5ijklmnpqr}': 'aBBBB', # 5th odd electroelastic
-        'e_{ijk}': 'aB', # 1st-order piezoelectric
-        'e_{ijklm}': 'aBB', # 2nd-order piezoelectric
+#         'e_{ijk}': 'aB', # 1st-order piezoelectric
+#         'e_{ijklm}': 'aBB', # 2nd-order piezoelectric
         }
 #     tname = 'd_{_5ijklmnpqr}'
 #     tname = 'c_{_5ijklmnpqrs}'
