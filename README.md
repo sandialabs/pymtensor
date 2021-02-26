@@ -27,11 +27,11 @@ TODO: add Windows installation instructions
 The following code snippet will compute the unique tensor elements of a 5th-rank tensor with indices 1 and 3 interchangeable.
 
 ```python
-from pymtensor.symmetry import SgSymOps, SymbolicTensor
-from pymtensor.rot_tensor import to_voigt
+from pymtensor.symmetry import RedSgSymOps
+from pymtensor.sym_tensor import SymbolicTensor
 
 # Choose a symmetry group (e.g. '3m')
-sg = SgSymOps()
+sg = RedSgSymOps()
 symops = sg('3m')
 
 # Create a 5th-rank symbolic tensor with indices 1 and 3 interchangeable
@@ -39,9 +39,7 @@ st = SymbolicTensor("abacd", 'c')
 
 # Solve for the unique tensor elements 
 fullsol, polyring = st.sol_details(symops)
-
-# Convert to Voigt notation and print the tensor
 print(fullsol)
 ```
 
-For more examples please refer to the `pymtensor/examples/compare_tables.py` file.
+For more examples please refer to the `pymtensor/examples/simple_example.py` file.
