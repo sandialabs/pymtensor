@@ -221,10 +221,10 @@ class SymbolicTensor(object):
         
         if timings: tic = time.perf_counter()
         process = psutil.Process()
-        print(process.memory_info().rss)  # in bytes 
+        print('bytes used = {}'.format(process.memory_info().rss))  # in bytes 
         sol = solve_lin_sys(eqs, R, _raw=False)
         process = psutil.Process()
-        print(process.memory_info().rss)  # in bytes 
+        print('bytes used = {}'.format(process.memory_info().rss))  # in bytes 
         if timings: toc = time.perf_counter()
         if timings: print(f"Solve linear system = {toc - tic:0.4f} seconds")
         numfreevars = len(ring_vals) - len(sol)
