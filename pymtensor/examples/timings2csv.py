@@ -21,6 +21,8 @@ def timings2csv(filename):
                         num_free_vars = int(subline.split()[-1])
                     if 'Rotate tensor' in subline:
                         time += float(subline.split()[-2])
+                    if 'Solve linear system' in subline:
+                        time += float(subline.split()[-2])
                     if 'len(eqs)' in subline:
                         rows = int(subline.split()[-1])
                     if 'Number of free variables' in subline:

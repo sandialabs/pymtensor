@@ -37,6 +37,8 @@ class SymbolicTensor(object):
         vm = {}
         for dim in set(dims):
             ivm[dim], vm[dim] = SymbolicTensor.voigt_map(dim, start)
+        print('vm=', vm)
+        print('ivm=', ivm)
         self.dims = dims
         self.vm = vm
         self.ivm = ivm
@@ -48,14 +50,18 @@ class SymbolicTensor(object):
             # Create slices for applying the Voigt mappings
             # Find all unique tensor component names
             symbols_dict = {}
+            print('start newindex')
             for index in product(range(3), repeat=tdim):
                 newindex = self._newindex(index, start, voigt)
                 name = ''.join([symbol] + [str(val) for val in newindex])
+                print(index, newindex, name)
                 symbols_dict[name] = Symbol(name)
             names = list(symbols_dict.keys())
+            print('names = {}'.format(names))
             print('Number of unknowns = {}'.format(len(names)))
             sortkey = lambda i: int(i[1:])
             names.sort(reverse=reverse, key=sortkey)
+            print('names=', names)
             poly_vals = ring(names, 'QQ<sqrt(3)>')
             poly_dict = dict((name, i) for i, name in enumerate(names))
             R = poly_vals[0]
@@ -122,7 +128,7 @@ class SymbolicTensor(object):
         for i, unique_index in enumerate(ordered_indices):
             ishifted = i + start
             # Zero-based indexing: subtract 1
-            shifted_index = [val - 1 + start for val in unique_index]
+            shifted_index = tuple(val - 1 + start for val in unique_index)
             ivm[ishifted] = shifted_index
             # Every permutation of the index should map to the same Voigt
             # value
@@ -213,9 +219,9 @@ class SymbolicTensor(object):
         if len(eqs) == 0:
             return {}
         print('len(eqs) = {}'.format(len(eqs)))
-#         print('eqs = ')
-#         for eq in eqs:
-#             print(eq.as_expr())
+        print('eqs = ')
+        for eq in eqs:
+            print(eq.as_expr())
         if timings: toc = time.perf_counter()
         if timings: print(f"Rotate tensor = {toc - tic:0.4f} seconds")
         
@@ -262,6 +268,29 @@ class SymbolicTensor(object):
         print(f"Format solution = {toc - tic:0.4f} seconds")
         return newtensor
                 
+
+class SparseSymbolicTensor(SymbolicTensor):
+    def __init__(self, indices, symbol, start=1, voigt=True, reverse=True,
+                 create_tensor=True):
+        """
+        PyMTensor applies crystal symmetries to dielectric, elastic, 
+        piezoelectric and other material tensors of interest.  It determines 
+        what components are zero and the relationships between the nonzero 
+        components for all crystallographic point groups.  It is capable of 
+        computing components of higher-order material tensors needed when 
+        treating nonlinear effects.
+        
+        start: integer
+            Allow for either 0- or 1-based indexing (`start=0` or `start=1`).
+        """
+        dims, repeats = SymbolicTensor._parse_name(indices)
+        # Total uncompressed tensor dimension
+        tdim = sum(dims)
+        # Initialize all necessary Voigt and inverse-Voigt mappings based on the
+        # unique dimensions
+        ivm = {}
+        vm = {}
+
 
 def symbolic_piezo(dim, sym, canonical=True, sort=True):
     voigt_map = {(0, 0): 0, (1, 1): 1, (2, 2): 2,

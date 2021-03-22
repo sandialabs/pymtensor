@@ -8,7 +8,9 @@ def sym_reduce(indices, symbol_name, sym_group):
     symops = sg(sym_group)
     
     # Create a 5th-rank symbolic tensor with indices 1 and 3 interchangeable
-    st = SymbolicTensor(indices, symbol_name)
+    print(indices)
+    print(symbol_name)
+    st = SymbolicTensor(indices, symbol_name[0], start=1)
     
     # Solve for the unique tensor elements 
     fullsol, polyring = st.sol_details(symops)
@@ -34,14 +36,19 @@ if __name__ == '__main__':
         'd_{_5ijklmnpqr}' : ('aBBBB', '5th odd electroelastic'),
         'e_{ijk}'         : ('aB'   , '1st-order piezoelectric'),
         'e_{ijklm}'       : ('aBB'  , '2nd-order piezoelectric'),
+        'foo': ('a4,', 'foo'),
     }
     
-    sym_group = '3m'
-    tensor_str = 'b_{ijkl}'
+    sym_group = '622'
+    tensor_str = 'c_{_5ijklmnpqrs}'
+    tensor_str = 'chi_{_2ij}'
+    tensor_str = 'e_{ijk}'
+    tensor_str = 'c_{_2ijkl}'
+#     tensor_str = 'foo'
     # Uncomment a line above with the tensor of interest
     indices, description = tensors[tensor_str]
     symbol = tensor_str.split('_')[0]
     print('Symmetry group = {}'.format(sym_group))
     print('Tensor = {}, {}'.format(tensor_str, description))
     sym_reduce(indices, symbol, sym_group)
-    
+#     sym_reduce('ab', 'c', sym_group)

@@ -386,6 +386,7 @@ class RedSgSymOps(object):
                                   [-rt3,   onehalf,   0],
                                   [   0,   0,   1]])
         symops['6dparZ3'] = -symops['6parZ3']
+        self.symops = symops
         group = {}
         def symtuple(names):
             return tuple(symops[name] for name in names)
