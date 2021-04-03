@@ -1,7 +1,7 @@
 # from numpy import array, pi, einsum
 from pymtensor.symmetry import (deg2rad, rotx, rotz, roty, rotu,
-    SgSymOps)
-from pymtensor.sym_tensor import SymbolicTensor
+   SgSymOps)
+from pymtensor.sym_tensor import SymbolicTensor, SparseSymbolicTensor
 from pymtensor.rot_tensor import to_voigt
 # We use the NumPy testing suite to make it easier to compare arrays
 from numpy.testing import (assert_equal, assert_allclose, assert_array_equal, 
@@ -278,6 +278,18 @@ class TestSymbolicTensor(TestCase):
 #         assert_array_equal(approx, exact)
 #         # Cubic
 
+class TestSparseSymbolicTensor(TestCase):
+    
+    # Initialize the symmetry operations once for use in multiple tests
+#     SST = SparseSymbolicTensor()
+
+    def test_mapping(self):
+        sst = SparseSymbolicTensor('a1,a1', 'c')
+        sst = SparseSymbolicTensor('a2,b1,a2,a2,b1', 'c')
+        sst = SparseSymbolicTensor('AbAAb', 'c')
+#         exact = [slice(0, 2), slice(2, 3), slice(3, 4), slice(4, 7)]
+#         approx = SymbolicTensor._create_slices(dims)
+#         assert_equal(approx, exact)
         
 
 if __name__ == "__main__":

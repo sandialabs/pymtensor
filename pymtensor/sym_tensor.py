@@ -1,5 +1,5 @@
 from collections import defaultdict
-from itertools import permutations, product
+from itertools import combinations_with_replacement, permutations, product
 import logging
 import time
 import psutil
@@ -286,11 +286,21 @@ class SparseSymbolicTensor(SymbolicTensor):
         dims, repeats = SymbolicTensor._parse_name(indices)
         # Total uncompressed tensor dimension
         tdim = sum(dims)
+        print(dims, repeats, tdim)
         # Initialize all necessary Voigt and inverse-Voigt mappings based on the
         # unique dimensions
         ivm = {}
         vm = {}
+        self._index_mappings(6, 2)
 
+    @staticmethod
+    def _index_mappings(vm, repeat):
+        for indices in combinations_with_replacement(range(vm), repeat):
+            print(indices, set(permutations(indices)))
+#         for i in range(1, 4):
+#             for j in range(i, 4):
+#                 for k in range(j, 4):
+#                     print((i,j,k), set(permutations((i,j,k))))
 
 def symbolic_piezo(dim, sym, canonical=True, sort=True):
     voigt_map = {(0, 0): 0, (1, 1): 1, (2, 2): 2,
