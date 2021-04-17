@@ -283,20 +283,58 @@ class SparseSymbolicTensor(SymbolicTensor):
         start: integer
             Allow for either 0- or 1-based indexing (`start=0` or `start=1`).
         """
+        self.start_index = start
         dims, repeats = SymbolicTensor._parse_name(indices)
         # Total uncompressed tensor dimension
         tdim = sum(dims)
-        print(dims, repeats, tdim)
+#         print(dims, repeats, tdim)
         # Initialize all necessary Voigt and inverse-Voigt mappings based on the
         # unique dimensions
         ivm = {}
         vm = {}
-        self._index_mappings(6, 2)
+        # First we find the minor symmetries (Voigt mappings)
+        for dim in set(dims):
+            ivm[dim], vm[dim] = SymbolicTensor.voigt_map(dim, start=0)
+        print('vm=', vm)
+        print('ivm=', ivm)
+        self.vm = vm
+        self.ivm = ivm
+        # Now we find all of the major symmetries
+        red_indices = self._reduced_indices(dims, repeats)
+        for (dim, repeats) in red_indices:
+            print(self._major_syms(dim, ivm, repeats))
 
     @staticmethod
-    def _index_mappings(vm, repeat):
-        for indices in combinations_with_replacement(range(vm), repeat):
-            print(indices, set(permutations(indices)))
+    def _reduced_indices(dims, repeats):
+        unique_dims = set(dims)
+        print(dims, unique_dims, repeats)
+        # (dim, number of repeats, indices to remove)
+        red_indices = [(dim, 1) for dim in dims]
+        rm_indices = [index for repeat in repeats for index in repeat[1:]]
+        rm_indices.sort()
+        for repeat in repeats:
+            num_repeats = len(repeat)
+            first_repeat = repeat[0]
+            dim = dims[first_repeat]
+            red_indices[first_repeat] = (dim, num_repeats)
+        # Go through the list backwards to not mess up the list ordering
+        for rm_ind in rm_indices[::-1]:
+            red_indices.pop(rm_ind)
+        print('red_indices=', red_indices)
+        return red_indices
+    
+    @staticmethod
+    def _major_syms(dim, ivm, num_repeats):
+        # Representative and remainder indices lists
+        indices_map = []
+        print(ivm[1], len(ivm[1]))
+        voigt_indices = range(len(ivm[dim]))[::-1]
+        for indices in combinations_with_replacement(voigt_indices, num_repeats):
+            unique_indices = set(permutations(indices))
+            degeneracy = len(unique_indices)
+            unique_indices.remove(indices)
+            indices_map.append((indices, degeneracy, unique_indices))
+        return indices_map
 #         for i in range(1, 4):
 #             for j in range(i, 4):
 #                 for k in range(j, 4):

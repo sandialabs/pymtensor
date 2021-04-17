@@ -285,7 +285,8 @@ class TestSparseSymbolicTensor(TestCase):
 
     def test_mapping(self):
         sst = SparseSymbolicTensor('a1,a1', 'c')
-        sst = SparseSymbolicTensor('a2,b1,a2,a2,b1', 'c')
+        {0: [(0, 0)], 1: [(1, 1)]}
+        sst = SparseSymbolicTensor('a2,b1,a2,a2,b1,c3', 'c')
         sst = SparseSymbolicTensor('AbAAb', 'c')
 #         exact = [slice(0, 2), slice(2, 3), slice(3, 4), slice(4, 7)]
 #         approx = SymbolicTensor._create_slices(dims)
