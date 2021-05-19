@@ -283,14 +283,35 @@ class TestSparseSymbolicTensor(TestCase):
     # Initialize the symmetry operations once for use in multiple tests
 #     SST = SparseSymbolicTensor()
 
-    def test_mapping(self):
-        sst = SparseSymbolicTensor('a1,a1', 'c')
-        {0: [(0, 0)], 1: [(1, 1)]}
-        sst = SparseSymbolicTensor('a2,b1,a2,a2,b1,c3', 'c')
-        sst = SparseSymbolicTensor('AbAAb', 'c')
-#         exact = [slice(0, 2), slice(2, 3), slice(3, 4), slice(4, 7)]
-#         approx = SymbolicTensor._create_slices(dims)
-#         assert_equal(approx, exact)
+    def test__reduced_indices(self):
+        # indices = 'a1,a1' = 'aa'
+        dims = [1, 1]
+        repeats = [[0, 1]]
+        actual = SparseSymbolicTensor._reduced_indices(dims, repeats)
+        expected = [(1, 2)]
+        assert_equal(expected, actual)
+        # indices = 'a2,b1,a2,a2,b1,c3' = 'AbAAb'
+        dims = [2, 1, 2, 2, 1, 3]
+        repeats = [[0, 2, 3], [1, 4]]
+        actual = SparseSymbolicTensor._reduced_indices(dims, repeats)
+        expected = [(2, 3), (1, 2), (3, 1)]
+        assert_equal(expected, actual)
+
+    def test__major_syms(self):
+        # indices = 'a1,a1' = 'aa'
+        num_voigt = 3
+        num_repeats = 2
+        sst = SparseSymbolicTensor('AA', 'c')
+#         actual = SparseSymbolicTensor._major_syms(num_voigt, num_repeats)
+        expected = [((0, 0), 1, set()), ((0, 1), 2, {(1, 0)}), ((0, 2), 2, {(2, 0)}), ((1, 1), 1, set()), ((1, 2), 2, {(2, 1)}), ((2, 2), 1, set())]
+        assert_equal(expected, actual)
+#         print(actual)
+    
+    def test__full_indices(self):
+        # indices = 'a1,a1' = 'aa'
+        sst = SparseSymbolicTensor('AA', 'c')
+        
+        
         
 
 if __name__ == "__main__":

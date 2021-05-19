@@ -37,8 +37,8 @@ class SymbolicTensor(object):
         vm = {}
         for dim in set(dims):
             ivm[dim], vm[dim] = SymbolicTensor.voigt_map(dim, start)
-        print('vm=', vm)
-        print('ivm=', ivm)
+#         print('vm=', vm)
+#         print('ivm=', ivm)
         self.dims = dims
         self.vm = vm
         self.ivm = ivm
@@ -301,13 +301,46 @@ class SparseSymbolicTensor(SymbolicTensor):
         self.ivm = ivm
         # Now we find all of the major symmetries
         red_indices = self._reduced_indices(dims, repeats)
-        for (dim, repeats) in red_indices:
-            print(self._major_syms(dim, ivm, repeats))
+#         for (dim, repeats) in red_indices:
+#             print(self._major_syms(len(ivm[dim]), repeats))
+        major_syms = [self._major_syms(dim, repeats)
+                      for (dim, repeats) in red_indices]
+#         major_indices_voigt = [vals[0] for vals in major_syms]
+#         degeneracies = [vals[1] for vals in major_syms]
+        print('major_syms = ', major_syms)
+#         print('degeneracies = ', degeneracies)
+#         print('major_indices_voigt = ', major_indices_voigt)
+        unique_full_indices = self._unique_full_indices(ivm, major_syms)
+
+    @staticmethod
+    def _full_indices(ivm, voigt_indices):
+        """
+        Convert a tuple of Voigt indices to an expanded tuple of full indices.
+        """
+#         return [ivm[voigt_index] for voigt_index in voigt_indices]
+        return tuple(chain())
+        
 
     @staticmethod
     def _reduced_indices(dims, repeats):
-        unique_dims = set(dims)
-        print(dims, unique_dims, repeats)
+        """
+        Find all unique index dimensions and their degeneracies.
+        
+        Parameters
+        ==========
+        dims : iterable of integers
+            An iterable containing the tensor's dimensions
+        repeats : iterable of iterable of integers
+            An iterable containing the repeated indices for each unique dimension
+        
+        Returns
+        major_syms : list of lists
+            Each nested list contains the representative indices, degeneracy,
+            and remaining indices for each unique dimension.
+        =======
+        """
+#         unique_dims = set(dims)
+#         print(dims, unique_dims, repeats)
         # (dim, number of repeats, indices to remove)
         red_indices = [(dim, 1) for dim in dims]
         rm_indices = [index for repeat in repeats for index in repeat[1:]]
@@ -320,25 +353,38 @@ class SparseSymbolicTensor(SymbolicTensor):
         # Go through the list backwards to not mess up the list ordering
         for rm_ind in rm_indices[::-1]:
             red_indices.pop(rm_ind)
-        print('red_indices=', red_indices)
         return red_indices
     
-    @staticmethod
-    def _major_syms(dim, ivm, num_repeats):
+#     @staticmethod
+    def _major_syms(self, dim, num_repeats):
+        """
+        Find all equivalent indices, their degeneracies, and store a 
+        representative fully expanded (non-Voigt notation) set of indices.
+        Currently, we store the canonically largest representative index but
+        this may change in the future to allow optional ordering.
+        
+        Parameters
+        ==========
+        num_voigt : int
+            Number of indices for current dimension
+        num_repeats : int
+            Number of repetitions of the current dimension
+        
+        Returns
+        =======
+        major_syms : tuple of int tuples
+        """
         # Representative and remainder indices lists
+        ivm = self.ivm
+        num_voigt = len(ivm[dim])
         indices_map = []
-        print(ivm[1], len(ivm[1]))
-        voigt_indices = range(len(ivm[dim]))[::-1]
+        voigt_indices = range(num_voigt)
         for indices in combinations_with_replacement(voigt_indices, num_repeats):
-            unique_indices = set(permutations(indices))
-            degeneracy = len(unique_indices)
-            unique_indices.remove(indices)
-            indices_map.append((indices, degeneracy, unique_indices))
+            equiv_indices = set(permutations(indices))
+            foo = [self.ivm[dim][equiv_index] for equiv_index in equiv_indices]
+            print(foo)
+            indices_map.append((indices, equiv_indices))
         return indices_map
-#         for i in range(1, 4):
-#             for j in range(i, 4):
-#                 for k in range(j, 4):
-#                     print((i,j,k), set(permutations((i,j,k))))
 
 def symbolic_piezo(dim, sym, canonical=True, sort=True):
     voigt_map = {(0, 0): 0, (1, 1): 1, (2, 2): 2,
