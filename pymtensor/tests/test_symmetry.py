@@ -296,6 +296,12 @@ class TestSparseSymbolicTensor(TestCase):
         actual = SparseSymbolicTensor._reduced_indices(dims, repeats)
         expected = [(2, 3), (1, 2), (3, 1)]
         assert_equal(expected, actual)
+        # indices = 'a2,b1,c2,a2,c2,c2' = 'AbBABB'
+        dims = [2, 1, 2, 2, 2, 2]
+        repeats = [[0, 3], [1], [2, 4, 5]]
+        actual = SparseSymbolicTensor._reduced_indices(dims, repeats)
+        expected = [(2, 2), (1, 1), (2, 3)]
+        assert_equal(expected, actual)
 
     def test__major_syms(self):
         # indices = 'a1,a1' = 'aa'
@@ -303,13 +309,18 @@ class TestSparseSymbolicTensor(TestCase):
         num_repeats = 2
         sst = SparseSymbolicTensor('AA', 'c')
 #         actual = SparseSymbolicTensor._major_syms(num_voigt, num_repeats)
+        # (0, 2), (2, 0) -> (0, 0, 3, 3), (3, 3, 0, 0)
+        # (0, 3), (3, 0) -> (0, 0, 2, 3), (0, 0, 3, 2), (2, 3, 0, 0), (3, 2, 0, 0)
         expected = [((0, 0), 1, set()), ((0, 1), 2, {(1, 0)}), ((0, 2), 2, {(2, 0)}), ((1, 1), 1, set()), ((1, 2), 2, {(2, 1)}), ((2, 2), 1, set())]
         assert_equal(expected, actual)
 #         print(actual)
     
     def test__full_indices(self):
         # indices = 'a1,a1' = 'aa'
-        sst = SparseSymbolicTensor('AA', 'c')
+        indices = 'a2,a2'
+        symbol = 'c'
+        print("Inside `test__full_indices`")
+        sst = SparseSymbolicTensor(indices, symbol)
         
         
         

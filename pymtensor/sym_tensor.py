@@ -1,5 +1,5 @@
 from collections import defaultdict
-from itertools import combinations_with_replacement, permutations, product
+from itertools import chain, combinations_with_replacement, permutations, product
 import logging
 import time
 import psutil
@@ -313,12 +313,13 @@ class SparseSymbolicTensor(SymbolicTensor):
         unique_full_indices = self._unique_full_indices(ivm, major_syms)
 
     @staticmethod
-    def _full_indices(ivm, voigt_indices):
+    def _unique_full_indices(ivm, voigt_indices):
         """
         Convert a tuple of Voigt indices to an expanded tuple of full indices.
         """
 #         return [ivm[voigt_index] for voigt_index in voigt_indices]
-        return tuple(chain())
+        bar = tuple(chain(*foo) for foo in product(voigt_indices))
+        return bar
         
 
     @staticmethod
@@ -356,7 +357,7 @@ class SparseSymbolicTensor(SymbolicTensor):
         return red_indices
     
 #     @staticmethod
-    def _major_syms(self, dim, num_repeats):
+    def _major_syms(self, dim_voigt, num_repeats):
         """
         Find all equivalent indices, their degeneracies, and store a 
         representative fully expanded (non-Voigt notation) set of indices.
@@ -365,8 +366,8 @@ class SparseSymbolicTensor(SymbolicTensor):
         
         Parameters
         ==========
-        num_voigt : int
-            Number of indices for current dimension
+        dim_voigt : int
+            Dimension of minor (Voigt) symmetry
         num_repeats : int
             Number of repetitions of the current dimension
         
@@ -376,14 +377,18 @@ class SparseSymbolicTensor(SymbolicTensor):
         """
         # Representative and remainder indices lists
         ivm = self.ivm
-        num_voigt = len(ivm[dim])
+        num_voigt = len(ivm[dim_voigt])
+        foomap = {key: set(permutations(val)) for key, val in ivm[dim_voigt].items()}
+        print('foomap=', foomap)
         indices_map = []
+        full_indices_map = []
         voigt_indices = range(num_voigt)
         for indices in combinations_with_replacement(voigt_indices, num_repeats):
             equiv_indices = set(permutations(indices))
-            foo = [self.ivm[dim][equiv_index] for equiv_index in equiv_indices]
-            print(foo)
             indices_map.append((indices, equiv_indices))
+            print([val for equiv_index in equiv_indices
+                   for val in equiv_index])
+        print('indices_map=', indices_map)
         return indices_map
 
 def symbolic_piezo(dim, sym, canonical=True, sort=True):
