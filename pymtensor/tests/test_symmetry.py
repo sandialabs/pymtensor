@@ -304,11 +304,13 @@ class TestSparseSymbolicTensor(TestCase):
         assert_equal(expected, actual)
 
     def test__major_syms(self):
+        print("inside test__major_syms")
         # indices = 'a1,a1' = 'aa'
-        num_voigt = 3
-        num_repeats = 2
+        # num_voigt = 3
+        # num_repeats = 2
         sst = SparseSymbolicTensor('AA', 'c')
 #         actual = SparseSymbolicTensor._major_syms(num_voigt, num_repeats)
+        # (0, 0), -> (0, 0, 0, 0)
         # (0, 2), (2, 0) -> (0, 0, 3, 3), (3, 3, 0, 0)
         # (0, 3), (3, 0) -> (0, 0, 2, 3), (0, 0, 3, 2), (2, 3, 0, 0), (3, 2, 0, 0)
         expected = [((0, 0), 1, set()), ((0, 1), 2, {(1, 0)}), ((0, 2), 2, {(2, 0)}), ((1, 1), 1, set()), ((1, 2), 2, {(2, 1)}), ((2, 2), 1, set())]

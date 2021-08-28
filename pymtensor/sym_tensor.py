@@ -378,11 +378,17 @@ class SparseSymbolicTensor(SymbolicTensor):
         # Representative and remainder indices lists
         ivm = self.ivm
         num_voigt = len(ivm[dim_voigt])
-        foomap = {key: set(permutations(val)) for key, val in ivm[dim_voigt].items()}
-        print('foomap=', foomap)
+        voigtmap = {key: set(permutations(val)) for key, val in ivm[dim_voigt].items()}
+        print('voigtmap=', voigtmap)
+        voigt_indices = range(num_voigt)
+        print('voigt_indices=', voigt_indices)
+        unique_indices = tuple(combinations_with_replacement(voigt_indices, num_repeats))
+        print('unique_indices=', unique_indices)
+        major_indices = tuple(set(tuple(permutations(indices))) for indices in unique_indices)
+        tuple(tuple(chain.from_iterable(val)) for val in foo)
+        print('major_indices=', major_indices)
         indices_map = []
         full_indices_map = []
-        voigt_indices = range(num_voigt)
         for indices in combinations_with_replacement(voigt_indices, num_repeats):
             equiv_indices = set(permutations(indices))
             indices_map.append((indices, equiv_indices))
