@@ -385,8 +385,13 @@ class SparseSymbolicTensor(SymbolicTensor):
         unique_indices = tuple(combinations_with_replacement(voigt_indices, num_repeats))
         print('unique_indices=', unique_indices)
         major_indices = tuple(set(tuple(permutations(indices))) for indices in unique_indices)
-        tuple(tuple(chain.from_iterable(val)) for val in foo)
         print('major_indices=', major_indices)
+        full_indices = tuple(tuple(map(voigtmap.get, val)) for val in major_indices)
+        # for major_index in major_indices:
+        #     print(tuple(tuple(chain.from_iterable(map(voigtmap.get, tuple(val)))) for val in major_index))
+
+        # full_indices = [tuple(chain.from_iterable(val)) for val in product(*major_indices)]
+        print('full_indices=', full_indices[0])
         indices_map = []
         full_indices_map = []
         for indices in combinations_with_replacement(voigt_indices, num_repeats):
