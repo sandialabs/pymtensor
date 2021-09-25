@@ -289,33 +289,51 @@ class TestSparseSymbolicTensor(TestCase):
         repeats = [[0, 1]]
         actual = SparseSymbolicTensor._reduced_indices(dims, repeats)
         expected = [(1, 2)]
-        assert_equal(expected, actual)
+        assert_equal(actual, expected)
         # indices = 'a2,b1,a2,a2,b1,c3' = 'AbAAb'
         dims = [2, 1, 2, 2, 1, 3]
         repeats = [[0, 2, 3], [1, 4]]
         actual = SparseSymbolicTensor._reduced_indices(dims, repeats)
         expected = [(2, 3), (1, 2), (3, 1)]
-        assert_equal(expected, actual)
+        assert_equal(actual, expected)
         # indices = 'a2,b1,c2,a2,c2,c2' = 'AbBABB'
         dims = [2, 1, 2, 2, 2, 2]
         repeats = [[0, 3], [1], [2, 4, 5]]
         actual = SparseSymbolicTensor._reduced_indices(dims, repeats)
         expected = [(2, 2), (1, 1), (2, 3)]
-        assert_equal(expected, actual)
+        assert_equal(actual, expected)
 
     def test__major_syms(self):
         print("inside test__major_syms")
         # indices = 'a1,a1' = 'aa'
         # num_voigt = 3
         # num_repeats = 2
-        sst = SparseSymbolicTensor('AA', 'c')
+        sst = SparseSymbolicTensor('AAa', 'c')
 #         actual = SparseSymbolicTensor._major_syms(num_voigt, num_repeats)
         # (0, 0), -> (0, 0, 0, 0)
         # (0, 2), (2, 0) -> (0, 0, 3, 3), (3, 3, 0, 0)
         # (0, 3), (3, 0) -> (0, 0, 2, 3), (0, 0, 3, 2), (2, 3, 0, 0), (3, 2, 0, 0)
         expected = [((0, 0), 1, set()), ((0, 1), 2, {(1, 0)}), ((0, 2), 2, {(2, 0)}), ((1, 1), 1, set()), ((1, 2), 2, {(2, 1)}), ((2, 2), 1, set())]
-        assert_equal(expected, actual)
+        assert_equal(actual, expected)
 #         print(actual)
+
+    def test__sort_lists_convert2tuples(self):
+        print('inside test__sort_lists_convert2tuples')
+        iter_of_lists = ([4, 1], [1, 2], [1, 1], [3, 1], [2, 2])
+        expected = ([1, 1], [1, 2], [2, 2], [3, 1], [4, 1])
+        actual = SparseSymbolicTensor._sort_lists_convert2tuples(iter_of_lists)
+        print('actual={}'.format(actual))
+        assert_equal(actual, expected)
+        
+        
+    def test__flatten_indices(self):
+        print('inside test__flatten_indices')
+        indices = [([(1, 2), (2, 1)], [(2, 2)]), ([(2, 2)], [(1, 2), (2, 1)])]
+        expected = [(1, 2, 2, 2), (2, 1, 2, 2), (2, 2, 1, 2), (2, 2, 2, 1)]
+        actual = SparseSymbolicTensor._flatten_indices(indices)
+        assert_equal(actual, expected)
+        indices = [([(1, 1)], [(1, 1)])]
+        expected = [(1, 1)]
     
     def test__full_indices(self):
         # indices = 'a1,a1' = 'aa'

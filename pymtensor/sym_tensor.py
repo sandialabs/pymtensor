@@ -320,7 +320,12 @@ class SparseSymbolicTensor(SymbolicTensor):
 #         return [ivm[voigt_index] for voigt_index in voigt_indices]
         bar = tuple(chain(*foo) for foo in product(voigt_indices))
         return bar
-        
+
+    @staticmethod
+    def _flatten_indices(indices):
+        return list(tuple(chain.from_iterable(val)) 
+                    for product_indices in indices
+                    for val in product(*product_indices))
 
     @staticmethod
     def _reduced_indices(dims, repeats):
@@ -356,6 +361,12 @@ class SparseSymbolicTensor(SymbolicTensor):
             red_indices.pop(rm_ind)
         return red_indices
     
+    @staticmethod
+    def _sort_lists_convert2tuples(iter_of_lists):
+        newiter = list(iter_of_lists)
+        newiter.sort()
+        return tuple(tuple(val) for val in newiter)
+    
 #     @staticmethod
     def _major_syms(self, dim_voigt, num_repeats):
         """
@@ -378,15 +389,21 @@ class SparseSymbolicTensor(SymbolicTensor):
         # Representative and remainder indices lists
         ivm = self.ivm
         num_voigt = len(ivm[dim_voigt])
-        voigtmap = {key: set(permutations(val)) for key, val in ivm[dim_voigt].items()}
+        # We create sets of the permutations in order to pick out the unique
+        # values.  We then convert the sets to lists so that they can be sorted.
+        voigtmap = {key: list(set(permutations(val))) for key, val in ivm[dim_voigt].items()}
+        for val in voigtmap.values():
+            val.sort()
         print('voigtmap=', voigtmap)
         voigt_indices = range(num_voigt)
         print('voigt_indices=', voigt_indices)
         unique_indices = tuple(combinations_with_replacement(voigt_indices, num_repeats))
         print('unique_indices=', unique_indices)
-        major_indices = tuple(set(tuple(permutations(indices))) for indices in unique_indices)
+        major_indices = tuple(list(set(tuple(permutations(indices)))) for indices in unique_indices)
         print('major_indices=', major_indices)
+        print(len(unique_indices), len(major_indices))
         full_indices = tuple(tuple(map(voigtmap.get, val)) for val in major_indices)
+        print('full_indices=', full_indices)
         # for major_index in major_indices:
         #     print(tuple(tuple(chain.from_iterable(map(voigtmap.get, tuple(val)))) for val in major_index))
 
