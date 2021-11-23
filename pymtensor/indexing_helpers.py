@@ -1,1 +1,41 @@
-from itertools import product
+from itertools import chain, product
+
+
+def apply_mapping(indices, mapping):
+    """Apply a set of indices to a mapping.
+    
+    Parameters
+    ----------
+    indices : iterable
+        Iterable containing the keys used to index into `mapping`
+    mapping : dictionary
+        Dictionary with objects to index.
+    
+    Returns
+    -------
+    objects_tuple: tuple of objects
+        A tuple containing the objects corresponding to each index in `indices`.
+    """
+    return tuple(mapping[index] for index in indices)
+
+
+def expand2full(mapping, iter_indices):
+    full = tuple(tuple(chain.from_iterable(val))
+                 for indices in iter_indices
+                 for val in product(*apply_mapping(indices, mapping)))
+    # def generate_full():
+    #     for indices in iter_indices:
+    #         # print('indices={}'.format(indices))
+    #         expanded = tuple(mapping[index] for index in indices)
+    #         # print(tuple(product(*expanded)))
+    #         # print('expanded={}'.format(expanded))
+    #         for val in product(*expanded):
+    #             yield tuple(chain.from_iterable(val))
+    # full = tuple(val for val in generate_full())
+    return full
+
+
+def sort_lists_convert2tuples(iter_of_lists):
+    newiter = list(iter_of_lists)
+    newiter.sort()
+    return tuple(tuple(val) for val in newiter)

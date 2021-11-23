@@ -6,6 +6,7 @@ def sym_reduce(indices, symbol_name, sym_group):
     # Choose a symmetry group (e.g. '3m')
     sg = RedSgSymOps()
     symops = sg(sym_group)
+    print('symops=', symops)
     
     # Create a 5th-rank symbolic tensor with indices 1 and 3 interchangeable
     print(indices)

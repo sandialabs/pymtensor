@@ -326,6 +326,7 @@ class TestSparseSymbolicTensor(TestCase):
         # indices = 'a1,a1' = 'aa'
         # num_voigt = 3
         # num_repeats = 2
+        # sst = SparseSymbolicTensor('A', 'c')
         sst = SparseSymbolicTensor('AAa', 'c')
 #         actual = SparseSymbolicTensor._major_syms(num_voigt, num_repeats)
         # (0, 0), -> (0, 0, 0, 0)

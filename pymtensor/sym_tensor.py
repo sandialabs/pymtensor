@@ -11,6 +11,7 @@ from sympy.polys.rings import ring
 from sympy.polys.solvers import solve_lin_sys
 
 from pymtensor.rot_tensor import rot_tensor#, to_voigt
+from pymtensor.indexing_helpers import expand2full
 from abc import abstractstaticmethod
 
 
@@ -416,7 +417,8 @@ class SparseSymbolicTensor(SymbolicTensor):
         major_indices = tuple(list(set(tuple(permutations(indices)))) for indices in unique_indices)
         print('major_indices=', major_indices)
         print(len(unique_indices), len(major_indices))
-        full_indices = tuple(tuple(map(voigtmap.get, val)) for val in major_indices)
+        full_indices = tuple(expand2full(voigtmap, indices)
+                             for indices in major_indices)
         print('full_indices=', full_indices)
         # for major_index in major_indices:
         #     print(tuple(tuple(chain.from_iterable(map(voigtmap.get, tuple(val)))) for val in major_index))
