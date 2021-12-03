@@ -11,7 +11,7 @@ from sympy.polys.rings import ring
 from sympy.polys.solvers import solve_lin_sys
 
 from pymtensor.rot_tensor import rot_tensor#, to_voigt
-from pymtensor.indexing_helpers import expand2full
+from pymtensor.indexing_helpers import expand2full, sort_lists_convert2tuples
 from abc import abstractstaticmethod
 
 
@@ -364,12 +364,6 @@ class SparseSymbolicTensor(SymbolicTensor):
         return red_indices
     
     @staticmethod
-    def _sort_lists_convert2tuples(iter_of_lists):
-        newiter = list(iter_of_lists)
-        newiter.sort()
-        return tuple(tuple(val) for val in newiter)
-    
-    @staticmethod
     def _expand2full(mapping, iter_indices):
         full = []
         for indices in iter_indices:
@@ -406,9 +400,8 @@ class SparseSymbolicTensor(SymbolicTensor):
         num_voigt = len(ivm[dim_voigt])
         # We create sets of the permutations in order to pick out the unique
         # values.  We then convert the sets to lists so that they can be sorted.
-        voigtmap = {key: list(set(permutations(val))) for key, val in ivm[dim_voigt].items()}
-        for val in voigtmap.values():
-            val.sort()
+        voigtmap = {key: sort_lists_convert2tuples(set(permutations(val)))
+                    for key, val in ivm[dim_voigt].items()}
         print('voigtmap=', voigtmap)
         voigt_indices = range(num_voigt)
         print('voigt_indices=', voigt_indices)
