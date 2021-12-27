@@ -363,19 +363,6 @@ class SparseSymbolicTensor(SymbolicTensor):
             red_indices.pop(rm_ind)
         return red_indices
     
-    @staticmethod
-    def _expand2full(mapping, iter_indices):
-        full = []
-        for indices in iter_indices:
-            # print('indices={}'.format(indices))
-            expanded = tuple(mapping[index] for index in indices)
-            # print(tuple(product(*expanded)))
-            # print('expanded={}'.format(expanded))
-            term = list(tuple(chain.from_iterable(val)) 
-                        for val in product(*expanded))
-            full += term
-        return full
-    
 #     @staticmethod
     def _major_syms(self, dim_voigt, num_repeats):
         """
