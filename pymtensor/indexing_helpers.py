@@ -1,4 +1,6 @@
+from functools import reduce
 from itertools import chain, product
+from operator import mul
 
 
 def apply_mapping(indices, mapping):
@@ -17,6 +19,11 @@ def apply_mapping(indices, mapping):
         A tuple containing the objects corresponding to each index in `indices`.
     """
     return tuple(mapping[index] for index in indices)
+
+
+def expand_all(indices):
+    full = tuple(tuple(chain.from_iterable(val)) for val in  product(*indices))
+    return full
 
 
 def expand2full(mapping, iter_indices):
@@ -39,3 +46,16 @@ def sort_lists_convert2tuples(iter_of_lists):
     newiter = list(iter_of_lists)
     newiter.sort()
     return tuple(tuple(val) for val in newiter)
+
+
+def form_matrix_entry(i, j, full_indices, symop):
+    """Form an element of the 
+    """
+    row = full_indices[i][0]
+    cols = full_indices[j]
+    val = 0
+    for col in cols:
+        val += reduce(mul, (symop[irow][icol] for irow, icol in zip(row, col)))
+    if i == j:
+        val -= 1
+    return val

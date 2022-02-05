@@ -303,24 +303,6 @@ class TestSparseSymbolicTensor(TestCase):
         expected = [(2, 2), (1, 1), (2, 3)]
         assert_equal(actual, expected)
 
-    def test__expand_to_full(self):
-        print("inside test__expand_to_full")
-        mapping = {0: ((0, 0),), 1: ((1, 1),), 2: ((2, 2),), 
-                   3: ((1, 2), (2, 1)),
-                   4: ((0, 2), (2, 0)),
-                   5: ((0, 1), (1, 0))}
-        iter_indices = [(4, 5)]
-        actual = SparseSymbolicTensor._expand2full(mapping, iter_indices)
-        expected1 = [(0, 2, 0, 1), (0, 2, 1, 0), (2, 0, 0, 1), (2, 0, 1, 0)]
-        assert_equal(actual, expected1)
-        iter_indices = [(5, 4)]
-        actual = SparseSymbolicTensor._expand2full(mapping, iter_indices)
-        expected2 = [(0, 1, 0, 2), (0, 1, 2, 0), (1, 0, 0, 2), (1, 0, 2, 0)]
-        assert_equal(actual, expected2)
-        iter_indices = [(4, 5), (5, 4)]
-        actual = SparseSymbolicTensor._expand2full(mapping, iter_indices)
-        assert_equal(actual, expected1 + expected2)
-
     def test__major_syms(self):
         print("inside test__major_syms")
         # indices = 'a1,a1' = 'aa'
