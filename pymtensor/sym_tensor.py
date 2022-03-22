@@ -1,5 +1,5 @@
 from collections import defaultdict
-from itertools import chain, combinations_with_replacement, permutations, product
+from itertools import permutations, product
 import logging
 import time
 import psutil
@@ -11,7 +11,6 @@ from sympy.polys.rings import ring
 from sympy.polys.solvers import solve_lin_sys
 
 from pymtensor.rot_tensor import rot_tensor#, to_voigt
-from pymtensor.indexing_helpers import expand2full, sort_lists_convert2tuples
 from abc import abstractstaticmethod
 
 
@@ -91,6 +90,15 @@ class SymbolicTensor(object):
     
     @staticmethod
     def _parse_name(name):
+        """
+        Parse a tensor definition string.
+        
+        Look for all of the dimensions and repeat structures in a given tensor
+        definition string.  Two formats are currently supported: 'ABcAe' is 
+        equivalent to 'a2,b2,c1,a2,e1' and both forms indicated a tensor of
+        dimension (3*3)*(3*3)*(3)*(3*3)*(3) = 3^8 = 6561.  The capital letters
+        indicate that the tensor has symmetry that reduces the number of
+        """
         if ',' in name:
             indices = name.split(',')
             # Check if the last token is empty

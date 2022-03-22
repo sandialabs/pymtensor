@@ -1,11 +1,20 @@
+from functools import reduce
+from itertools import chain, combinations_with_replacement, permutations, product
+from operator import mul
 
-def symfinder(indices, reverse=True):
+from pymtensor.indexing_helpers import expand2full, sort_lists_convert2tuples
+from pymtensor.sym_tensor import SymbolicTensor
+
+# TODO: Create an easy-to-use function to call for finding tensor symmetries
+def symfinder(indices, symops, reverse=True):
     # TODO: support different sorting options.  This has to be done in the 
     # symmetry finder code because the order of the variables in the system of
     # equations determines the sorting of variables.
+    pass
 
-class TensorSymmetries(SymbolicTensor):
-    def __init__(self, indices, symbol, start=1, voigt=True, reverse=True,
+
+class SparseSymbolicTensor(SymbolicTensor):
+    def __init__(self, indices, symbol='c', start=1, voigt=True, reverse=True,
                  create_tensor=True):
         """
         PyMTensor applies crystal symmetries to dielectric, elastic, 
@@ -22,7 +31,7 @@ class TensorSymmetries(SymbolicTensor):
         dims, repeats = SymbolicTensor._parse_name(indices)
         # Total uncompressed tensor dimension
         tdim = sum(dims)
-#         print(dims, repeats, tdim)
+        print(dims, repeats, tdim)
         # Initialize all necessary Voigt and inverse-Voigt mappings based on the
         # unique dimensions
         ivm = {}
@@ -38,26 +47,57 @@ class TensorSymmetries(SymbolicTensor):
         red_indices = self._reduced_indices(dims, repeats)
 #         for (dim, repeats) in red_indices:
 #             print(self._major_syms(len(ivm[dim]), repeats))
-        major_syms = [self._major_syms(dim, repeats)
-                      for (dim, repeats) in red_indices]
+        major_and_full_syms = [self.major_and_full_syms(dim, repeats)
+                               for (dim, repeats) in red_indices]
+        major_syms = [val[0] for val in major_and_full_syms]
+        print('major_syms = ', major_syms)
+        full_syms =  [val[1] for val in major_and_full_syms]
+        print('full_syms = ', full_syms)
+        expanded_full_indices = tuple(product(*full_syms))
+        print('expanded_full_indices=', expanded_full_indices)
+        # self.assemble_matrix(expanded_full_indices, symops)
 #         major_indices_voigt = [vals[0] for vals in major_syms]
 #         degeneracies = [vals[1] for vals in major_syms]
-        print('major_syms = ', major_syms)
 #         print('degeneracies = ', degeneracies)
 #         print('major_indices_voigt = ', major_indices_voigt)
-        unique_full_indices = self._unique_full_indices(ivm, major_syms)
-
-    def assemble_matrix(self, indices, symops):
-        pass
+        # unique_full_indices = self._unique_full_indices(ivm, major_syms)
+        # print('unique_full_indices=', tuple(tuple(val) for val in unique_full_indices))
 
     @staticmethod
-    def _unique_full_indices(ivm, voigt_indices):
+    def assemble_matrix(indices, symops):
+        pass
+    
+    @staticmethod
+    def form_matrix_entry(i, j, full_indices, symop):
+        """Form an element of the reduced linear system.
+        """
+        val = 0
+        print('full_indices[{}]={}'.format(i, full_indices[i]))
+        print('full_indices[{}]={}'.format(j, full_indices[j]))
+        for irow, icol in zip(full_indices[i], full_indices[j]):
+            iirow = irow[0]
+            print('iirow={}'.format(iirow))
+            sum1 = 0
+            for iicol in icol:
+                
+                print('iicol={}'.format(iicol))
+                # print('iirow[{}]={}'.format(i, iirow[i]))
+                # print('iicol[{}]={}', icol[0])
+        # for col in cols:
+        #     val += reduce(mul, (symop[irow][icol] for irow, icol in zip(row, col)))
+        if i == j:
+            val -= 1
+        return val
+
+    @staticmethod
+    def _unique_full_indices(major_indices):
         """
         Convert a tuple of Voigt indices to an expanded tuple of full indices.
         """
 #         return [ivm[voigt_index] for voigt_index in voigt_indices]
-        bar = tuple(chain(*foo) for foo in product(voigt_indices))
-        return bar
+        # full = tuple(chain(*foo) for foo in product(voigt_indices))
+        full = tuple(product(major_indices))
+        return full
 
     @staticmethod
     def _flatten_indices(indices):
@@ -100,7 +140,7 @@ class TensorSymmetries(SymbolicTensor):
         return red_indices
     
 #     @staticmethod
-    def _major_syms(self, dim_voigt, num_repeats):
+    def major_and_full_syms(self, dim_voigt, num_repeats):
         """
         Find all equivalent indices, their degeneracies, and store a 
         representative fully expanded (non-Voigt notation) set of indices.
@@ -132,23 +172,24 @@ class TensorSymmetries(SymbolicTensor):
         print('unique_indices=', unique_indices)
         major_indices = tuple(list(set(tuple(permutations(indices)))) for indices in unique_indices)
         print('major_indices=', major_indices)
-        print(len(unique_indices), len(major_indices))
+        # print(len(unique_indices), len(major_indices))
         full_indices = tuple(expand2full(voigtmap, indices)
                              for indices in major_indices)
         print('full_indices=', full_indices)
-        print('len(unique_indices)=', len(unique_indices))
-        print('len(major_indices)=', len(unique_indices))
-        # for major_index in major_indices:
-        #     print(tuple(tuple(chain.from_iterable(map(voigtmap.get, tuple(val)))) for val in major_index))
-
-        # full_indices = [tuple(chain.from_iterable(val)) for val in product(*major_indices)]
-        print('full_indices=', full_indices[0])
-        indices_map = []
-        full_indices_map = []
-        for indices in combinations_with_replacement(voigt_indices, num_repeats):
-            equiv_indices = set(permutations(indices))
-            indices_map.append((indices, equiv_indices))
-            print([val for equiv_index in equiv_indices
-                   for val in equiv_index])
-        print('indices_map=', indices_map)
-        return indices_map
+        return major_indices, full_indices
+        # print('len(unique_indices)=', len(unique_indices))
+        # print('len(major_indices)=', len(unique_indices))
+        # # for major_index in major_indices:
+        # #     print(tuple(tuple(chain.from_iterable(map(voigtmap.get, tuple(val)))) for val in major_index))
+        #
+        # # full_indices = [tuple(chain.from_iterable(val)) for val in product(*major_indices)]
+        # print('full_indices=', full_indices[0])
+        # indices_map = []
+        # full_indices_map = []
+        # for indices in combinations_with_replacement(voigt_indices, num_repeats):
+        #     equiv_indices = set(permutations(indices))
+        #     indices_map.append((indices, equiv_indices))
+        #     print([val for equiv_index in equiv_indices
+        #            for val in equiv_index])
+        # print('indices_map=', indices_map)
+        # return indices_map

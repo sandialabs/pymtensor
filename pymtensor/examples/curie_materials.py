@@ -1,5 +1,6 @@
 from numpy import array
-from sympy import sqrt, Rational
+from sympy import cos, exp, Matrix, sin, sqrt, Rational, Symbol
+from sympy.polys.matrices import DomainMatrix
 
 from pymtensor.symmetry import RedSgSymOps
 from pymtensor.sym_tensor import SymbolicTensor
@@ -26,6 +27,14 @@ def sym_reduce(indices, symbol_name, sym_group):
     print(fullsol)
 
 
+def complex_exponential_example():
+    x = Symbol('x')
+    A = Matrix([val.rewrite(exp).expand() for val in 
+                (sin(x) * cos(x), cos(x)**3,-cos(x), sin(x)**2)]).reshape(2, 2)
+    Adm = DomainMatrix.from_Matrix(A)
+    print(Adm)
+    print(Adm.rref())
+
 
 if __name__ == '__main__':
     tensors = {
@@ -47,3 +56,4 @@ if __name__ == '__main__':
     print('Tensor = {}, {}'.format(tensor_str, description))
     sym_reduce(indices, symbol, sym_group)
 #     sym_reduce('ab', 'c', sym_group)
+    complex_exponential_example()
