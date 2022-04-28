@@ -79,8 +79,10 @@ class SparseSymbolicTensor(SymbolicTensor):
             print('iirow={}'.format(iirow))
             sum1 = 0
             for iicol in icol:
-                
+                sum1 += reduce(mul, (symop[iiirow][iiicol] for iiirow, iiicol in zip(iirow, iicol)))
                 print('iicol={}'.format(iicol))
+                print('sum1={}'.format(sum1))
+            val += sum1
                 # print('iirow[{}]={}'.format(i, iirow[i]))
                 # print('iicol[{}]={}', icol[0])
         # for col in cols:

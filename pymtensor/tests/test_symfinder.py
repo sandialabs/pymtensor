@@ -69,7 +69,7 @@ class TestSparseSymbolicTensor(unittest.TestCase):
                         (((0, 1), (1, 0)), ((2, 0), (0, 2))),)
         # row = (((2, 0), (0, 2)), ((2, 2),))
         # col = (((0, 1), (1, 0)), ((2, 0), (0, 2)))
-        # (R[2][0] * R[0][1] + R[2][1] * R[0][0]) * () - krondel(0, 1)
+        # (R[2][0] * R[0][1] + R[2][1] * R[0][0]) * (R[2][2]) - krondel(0, 1)
         expected = 1 * 6 + 2 * 5 - 0
         actual = SparseSymbolicTensor.form_matrix_entry(0, 1, full_indices, symop)
         self.assertEqual(actual, expected)
