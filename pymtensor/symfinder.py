@@ -65,29 +65,44 @@ class SparseSymbolicTensor(SymbolicTensor):
 
     @staticmethod
     def assemble_matrix(indices, symops):
+        """
+        Create the matrix for a given set of indices and symmetry operations.
+        
+        
+        """
         pass
+    
+    @staticmethod
+    def prod(iterable):
+        return reduce(mul, iterable)
     
     @staticmethod
     def form_matrix_entry(i, j, full_indices, symop):
         """Form an element of the reduced linear system.
         """
-        val = 0
-        print('full_indices[{}]={}'.format(i, full_indices[i]))
-        print('full_indices[{}]={}'.format(j, full_indices[j]))
-        for irow, icol in zip(full_indices[i], full_indices[j]):
-            iirow = irow[0]
-            print('iirow={}'.format(iirow))
-            sum1 = 0
-            for iicol in icol:
-                sum1 += reduce(mul, (symop[iiirow][iiicol] for iiirow, iiicol in zip(iirow, iicol)))
-                print('iicol={}'.format(iicol))
-                print('sum1={}'.format(sum1))
-            val += sum1
+        prod = SparseSymbolicTensor.prod
+        # val = 1
+        # print('full_indices[{}]={}'.format(i, full_indices[i]))
+        # print('full_indices[{}]={}'.format(j, full_indices[j]))
+        # for irow, icol in zip(full_indices[i], full_indices[j]):
+        #     iirow = irow[0]
+        #     print('iirow={}'.format(iirow))
+            # sum1 = 0
+            # for iicol in icol:
+            #     sum1 += reduce(mul, (symop[iiirow][iiicol] for iiirow, iiicol in zip(iirow, iicol)))
+            #     print('iicol={}'.format(iicol))
+            #     print('sum1={}'.format(sum1))
+            # val *= sum1
                 # print('iirow[{}]={}'.format(i, iirow[i]))
                 # print('iicol[{}]={}', icol[0])
+        # The following three lines are equivalent to the nested for loops above.
+        val = prod(sum(prod(symop[iiirow][iiicol] for iiirow, iiicol 
+                            in zip(irow[0], iicol)) for iicol in icol)
+                   for irow, icol in zip(full_indices[i], full_indices[j]))
         # for col in cols:
         #     val += reduce(mul, (symop[irow][icol] for irow, icol in zip(row, col)))
         if i == j:
+            # TODO: we should figure out what unity is in the algebra in `symop`
             val -= 1
         return val
 
