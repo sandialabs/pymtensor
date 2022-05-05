@@ -1,6 +1,8 @@
 import unittest
 
-from sympy import symbols
+from sympy import Matrix, symbols
+from sympy.polys.domains import QQ, ZZ
+from sympy.polys.solvers import DomainMatrix
 
 from pymtensor.symfinder import SparseSymbolicTensor
 
@@ -89,11 +91,20 @@ class TestSparseSymbolicTensor(unittest.TestCase):
 
         
     def test_assemble_matrix(self):
-        pass
-        
+        domain = ZZ
+        R1 = Matrix([[0, 1], [2, 3]])
+        R2 = Matrix([[4, 5], [6, 7]])
+        symops = [DomainMatrix.from_Matrix(M) for M in (R1, R2)]
+        indices = [0, 1]
+        def func(i, j, indices, symop):
+            # Ignore indices for now
+            return symop[(i, j)]
+        actual = SparseSymbolicTensor.assemble_matrix(indices, symops, func, domain)
+        print('actual assemble_matrix = ', actual)
 
 if __name__ == "__main__":
     import sys
     # sys.argv = ['', 'TestSparseSymbolicTensor.test_major_and_full_syms']
-    sys.argv = ['', 'TestSparseSymbolicTensor.test_form_matrix_entry']
+    # sys.argv = ['', 'TestSparseSymbolicTensor.test_form_matrix_entry']
+    sys.argv = ['', 'TestSparseSymbolicTensor.test_assemble_matrix']
     unittest.main()

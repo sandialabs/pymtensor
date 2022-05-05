@@ -64,13 +64,27 @@ class SparseSymbolicTensor(SymbolicTensor):
         # print('unique_full_indices=', tuple(tuple(val) for val in unique_full_indices))
 
     @staticmethod
-    def assemble_matrix(indices, symops):
+    def assemble_matrix(indices, symops, func, domain=None):
         """
         Create the matrix for a given set of indices and symmetry operations.
         
         
         """
-        pass
+        # Figure out the size of the matrix
+        nindices = len(indices)
+        # Generator for rows needs to return the absolute and local positions
+        def rows_gen(symops):
+            iglobal = 0
+            for symop in symops:
+                for ilocal in range(nindices):
+                    yield (iglobal, ilocal, symop)
+                    iglobal += 1
+        entries = {}
+        for iglobal, ilocal, symop in rows_gen(symops):
+            entries[iglobal] = {j: func(ilocal, j, indices, symop)
+                                for j in range(nindices)}
+        return entries
+        # if domain is not None:
     
     @staticmethod
     def prod(iterable):
@@ -80,7 +94,6 @@ class SparseSymbolicTensor(SymbolicTensor):
     def form_matrix_entry(i, j, full_indices, symop):
         """Form an element of the reduced linear system.
         """
-        prod = SparseSymbolicTensor.prod
         # val = 1
         # print('full_indices[{}]={}'.format(i, full_indices[i]))
         # print('full_indices[{}]={}'.format(j, full_indices[j]))
@@ -96,6 +109,7 @@ class SparseSymbolicTensor(SymbolicTensor):
                 # print('iirow[{}]={}'.format(i, iirow[i]))
                 # print('iicol[{}]={}', icol[0])
         # The following three lines are equivalent to the nested for loops above.
+        prod = SparseSymbolicTensor.prod
         val = prod(sum(prod(symop[iiirow][iiicol] for iiirow, iiicol 
                             in zip(irow[0], iicol)) for iicol in icol)
                    for irow, icol in zip(full_indices[i], full_indices[j]))
