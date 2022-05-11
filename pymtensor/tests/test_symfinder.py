@@ -2,6 +2,7 @@ import unittest
 
 from sympy import Matrix, symbols
 from sympy.polys.domains import QQ, ZZ
+from sympy.polys.matrices.sdm import SDM
 from sympy.polys.solvers import DomainMatrix
 
 from pymtensor.symfinder import SparseSymbolicTensor
@@ -91,16 +92,25 @@ class TestSparseSymbolicTensor(unittest.TestCase):
 
         
     def test_assemble_matrix(self):
-        domain = ZZ
-        R1 = Matrix([[0, 1], [2, 3]])
-        R2 = Matrix([[4, 5], [6, 7]])
-        symops = [DomainMatrix.from_Matrix(M) for M in (R1, R2)]
+        domain = QQ
+        data = [[[0, 1], [2, 3]], [[4, 5], [6, 7]]]
+        # R1 = Matrix([[0, 1], [2, 3]])
+        # R2 = Matrix([[4, 5], [6, 7]])
+        symops = [DomainMatrix.from_list_sympy(2, 2, block).convert_to(domain) for block in data]
         indices = [0, 1]
-        def func(i, j, indices, symop):
+        def func(i, j, indices, symop, one=1):
             # Ignore indices for now
-            return symop[(i, j)]
+            # print('type(symop[(i, j)])=', type(symop[(i, j)]), 'symop[(i, j)].__repr__=', symop[(i, j)].__repr__())
+            return symop.rep.getitem(i, j)
         actual = SparseSymbolicTensor.assemble_matrix(indices, symops, func, domain)
+        data_flattened = [line for block in data for line in block]
+        expected = DomainMatrix.from_list_sympy(4, 2, data_flattened).convert_to(domain)
         print('actual assemble_matrix = ', actual)
+        print(actual.rep)
+        print(expected.rep)
+        print('rref=', actual.rref())
+        print('rref=', expected.rref())
+        self.assertEqual(actual, expected.to_sparse())
 
 if __name__ == "__main__":
     import sys

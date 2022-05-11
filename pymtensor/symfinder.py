@@ -4,6 +4,8 @@ from operator import mul
 
 from pymtensor.indexing_helpers import expand2full, sort_lists_convert2tuples
 from pymtensor.sym_tensor import SymbolicTensor
+from sympy.polys.matrices.sdm import SDM
+from sympy.polys.solvers import DomainMatrix
 
 # TODO: Create an easy-to-use function to call for finding tensor symmetries
 def symfinder(indices, symops, reverse=True):
@@ -71,19 +73,30 @@ class SparseSymbolicTensor(SymbolicTensor):
         
         """
         # Figure out the size of the matrix
-        nindices = len(indices)
+        ncols = len(indices)
+        nrows = len(symops) * ncols
         # Generator for rows needs to return the absolute and local positions
+        zero = domain.zero
+        print('zero=', zero, '=', zero.__repr__())
+        one = domain.one
         def rows_gen(symops):
             iglobal = 0
             for symop in symops:
-                for ilocal in range(nindices):
+                for ilocal in range(ncols):
                     yield (iglobal, ilocal, symop)
                     iglobal += 1
         entries = {}
         for iglobal, ilocal, symop in rows_gen(symops):
-            entries[iglobal] = {j: func(ilocal, j, indices, symop)
-                                for j in range(nindices)}
-        return entries
+            row = {}
+            for j in range(ncols):
+                val = func(ilocal, j, indices, symop, one)
+                # print('val=', val, ', bool(val)', bool(val))
+                if val:# != zero:
+                    row[j] = val
+            entries[iglobal] = row
+        drep = SDM(entries, (nrows, ncols), domain=domain)
+        dmatrix = DomainMatrix.from_rep(drep)
+        return dmatrix
         # if domain is not None:
     
     @staticmethod
@@ -91,7 +104,7 @@ class SparseSymbolicTensor(SymbolicTensor):
         return reduce(mul, iterable)
     
     @staticmethod
-    def form_matrix_entry(i, j, full_indices, symop):
+    def form_matrix_entry(i, j, full_indices, symop, one=1):
         """Form an element of the reduced linear system.
         """
         # val = 1
@@ -117,7 +130,7 @@ class SparseSymbolicTensor(SymbolicTensor):
         #     val += reduce(mul, (symop[irow][icol] for irow, icol in zip(row, col)))
         if i == j:
             # TODO: we should figure out what unity is in the algebra in `symop`
-            val -= 1
+            val -= one
         return val
 
     @staticmethod
