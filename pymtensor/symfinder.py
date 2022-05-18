@@ -57,6 +57,7 @@ class SparseSymbolicTensor(SymbolicTensor):
         print('full_syms = ', full_syms)
         expanded_full_indices = tuple(product(*full_syms))
         print('expanded_full_indices=', expanded_full_indices)
+        self.expanded_full_indices = expanded_full_indices
         # self.assemble_matrix(expanded_full_indices, symops)
 #         major_indices_voigt = [vals[0] for vals in major_syms]
 #         degeneracies = [vals[1] for vals in major_syms]
@@ -64,6 +65,18 @@ class SparseSymbolicTensor(SymbolicTensor):
 #         print('major_indices_voigt = ', major_indices_voigt)
         # unique_full_indices = self._unique_full_indices(ivm, major_syms)
         # print('unique_full_indices=', tuple(tuple(val) for val in unique_full_indices))
+
+    def apply_symmetry(self, symops, domain, timings=True):
+        # if domain is None:
+        #     symop = symops[0]
+        # Convert all of the symmetry operators to the desired domain
+        newsymops = [self.convert_symop(symop, domain) for symop in symops]
+        system = self.assemble_matrix(self.expanded_full_indices, newsymops, 
+                                      self.form_matrix_entry, domain)
+        print('system=', system)
+        sol, pivots = system.rref()
+        num_unique_vars = len(pivots)
+        return sol, num_unique_vars
 
     @staticmethod
     def assemble_matrix(indices, symops, func, domain=None):
@@ -93,11 +106,17 @@ class SparseSymbolicTensor(SymbolicTensor):
                 # print('val=', val, ', bool(val)', bool(val))
                 if val:# != zero:
                     row[j] = val
-            entries[iglobal] = row
+            if len(row) > 0:
+                entries[iglobal] = row
         drep = SDM(entries, (nrows, ncols), domain=domain)
         dmatrix = DomainMatrix.from_rep(drep)
         return dmatrix
         # if domain is not None:
+    
+    @staticmethod
+    def convert_symop(symop, domain):
+        return tuple(tuple(domain.convert(val) for val in row) 
+                     for row in symop)
     
     @staticmethod
     def prod(iterable):

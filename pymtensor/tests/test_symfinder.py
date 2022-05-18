@@ -1,11 +1,12 @@
 import unittest
 
-from sympy import Matrix, symbols
+from sympy import Matrix, sqrt, symbols
 from sympy.polys.domains import QQ, ZZ
 from sympy.polys.matrices.sdm import SDM
 from sympy.polys.solvers import DomainMatrix
 
 from pymtensor.symfinder import SparseSymbolicTensor
+from pymtensor.symmetry import RedSgSymOps
 
 
 class TestSparseSymbolicTensor(unittest.TestCase):
@@ -65,6 +66,13 @@ class TestSparseSymbolicTensor(unittest.TestCase):
         symbol = 'c'
         print("Inside `test__full_indices`")
         sst = SparseSymbolicTensor(indices, symbol)
+    
+    def test_convert_symop(self):
+        domain = ZZ
+        symop = [[1, 2], [3, 4]]
+        actual = SparseSymbolicTensor.convert_symop(symop, domain)
+        expected = ((ZZ(1), ZZ(2)), (ZZ(3), ZZ(4)))
+        self.assertEqual(actual, expected)
         
     def test_form_matrix_entry(self):
         (a, b, c, d, e, f, g, h, i) = symbols('a b c d e f g h i')
@@ -94,8 +102,6 @@ class TestSparseSymbolicTensor(unittest.TestCase):
     def test_assemble_matrix(self):
         domain = QQ
         data = [[[0, 1], [2, 3]], [[4, 5], [6, 7]]]
-        # R1 = Matrix([[0, 1], [2, 3]])
-        # R2 = Matrix([[4, 5], [6, 7]])
         symops = [DomainMatrix.from_list_sympy(2, 2, block).convert_to(domain) for block in data]
         indices = [0, 1]
         def func(i, j, indices, symop, one=1):
@@ -111,10 +117,28 @@ class TestSparseSymbolicTensor(unittest.TestCase):
         print('rref=', actual.rref())
         print('rref=', expected.rref())
         self.assertEqual(actual, expected.to_sparse())
+    
+    def test_apply_symmetry(self):
+        sst = SparseSymbolicTensor('aa', 'c')
+        sg = RedSgSymOps()
+        symops = sg("3dm")
+        print('symops=', symops)
+        domain = QQ.algebraic_field(sqrt(3))
+        sol, num_unique_vars = sst.apply_symmetry(symops, domain)
+        print('sol=', sol.to_Matrix())
+#         # Hexagonal
+#         symops = self.SSO('3dm')
+#         approx = st.apply_symmetry(symops)
+#         exact = array([[e11,   0,   0],
+#                        [  0, e11,   0],
+#                        [  0,   0, e33]])
+#         assert_array_equal(approx, exact)
 
 if __name__ == "__main__":
     import sys
     # sys.argv = ['', 'TestSparseSymbolicTensor.test_major_and_full_syms']
     # sys.argv = ['', 'TestSparseSymbolicTensor.test_form_matrix_entry']
     sys.argv = ['', 'TestSparseSymbolicTensor.test_assemble_matrix']
+    sys.argv = ['', 'TestSparseSymbolicTensor.test_convert_symop']
+    sys.argv = ['', 'TestSparseSymbolicTensor.test_apply_symmetry']
     unittest.main()
