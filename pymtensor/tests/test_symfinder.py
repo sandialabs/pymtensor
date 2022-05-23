@@ -122,10 +122,12 @@ class TestSparseSymbolicTensor(unittest.TestCase):
         sst = SparseSymbolicTensor('aa', 'c')
         sg = RedSgSymOps()
         symops = sg("3dm")
+        symops = sg("2")
         print('symops=', symops)
         domain = QQ.algebraic_field(sqrt(3))
-        sol, num_unique_vars = sst.apply_symmetry(symops, domain)
+        sol, pivots = sst.apply_symmetry(symops, domain)
         print('sol=', sol.to_Matrix())
+        print('pivots=', pivots)
 #         # Hexagonal
 #         symops = self.SSO('3dm')
 #         approx = st.apply_symmetry(symops)

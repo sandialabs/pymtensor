@@ -73,10 +73,9 @@ class SparseSymbolicTensor(SymbolicTensor):
         newsymops = [self.convert_symop(symop, domain) for symop in symops]
         system = self.assemble_matrix(self.expanded_full_indices, newsymops, 
                                       self.form_matrix_entry, domain)
-        print('system=', system)
+        # print('system=', system)
         sol, pivots = system.rref()
-        num_unique_vars = len(pivots)
-        return sol, num_unique_vars
+        return sol, pivots
 
     @staticmethod
     def assemble_matrix(indices, symops, func, domain=None):
