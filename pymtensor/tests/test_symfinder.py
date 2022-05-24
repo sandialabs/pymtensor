@@ -126,7 +126,8 @@ class TestSparseSymbolicTensor(unittest.TestCase):
         print('symops=', symops)
         domain = QQ.algebraic_field(sqrt(3))
         sol, pivots = sst.apply_symmetry(symops, domain)
-        print('sol=', sol.to_Matrix())
+        print('sol=', sol)
+        print('sol.to_Matrix()=', sol.to_Matrix())
         print('pivots=', pivots)
 #         # Hexagonal
 #         symops = self.SSO('3dm')
@@ -136,11 +137,24 @@ class TestSparseSymbolicTensor(unittest.TestCase):
 #                        [  0,   0, e33]])
 #         assert_array_equal(approx, exact)
 
+    def test_interpret_solution(self):
+        sst = SparseSymbolicTensor('aa', 'c')
+        sg = RedSgSymOps()
+        symops = sg("3dm")
+        symops = sg("2")
+        print('symops=', symops)
+        domain = QQ.algebraic_field(sqrt(3))
+        sol, pivots = sst.apply_symmetry(symops, domain)
+        nonzero_vars, unique_vars = sst.interpret_solution(sol, pivots)
+        print('nonzero_vars = {}, unique_vars={}'.format(nonzero_vars, unique_vars))
+
+
 if __name__ == "__main__":
     import sys
-    # sys.argv = ['', 'TestSparseSymbolicTensor.test_major_and_full_syms']
+    sys.argv = ['', 'TestSparseSymbolicTensor.test_major_and_full_syms']
     # sys.argv = ['', 'TestSparseSymbolicTensor.test_form_matrix_entry']
-    sys.argv = ['', 'TestSparseSymbolicTensor.test_assemble_matrix']
-    sys.argv = ['', 'TestSparseSymbolicTensor.test_convert_symop']
-    sys.argv = ['', 'TestSparseSymbolicTensor.test_apply_symmetry']
+    # sys.argv = ['', 'TestSparseSymbolicTensor.test_assemble_matrix']
+    # sys.argv = ['', 'TestSparseSymbolicTensor.test_convert_symop']
+    # sys.argv = ['', 'TestSparseSymbolicTensor.test_apply_symmetry']
+    sys.argv = ['', 'TestSparseSymbolicTensor.test_interpret_solution']
     unittest.main()

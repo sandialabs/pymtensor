@@ -33,6 +33,7 @@ class SparseSymbolicTensor(SymbolicTensor):
         dims, repeats = SymbolicTensor._parse_name(indices)
         # Total uncompressed tensor dimension
         tdim = sum(dims)
+        self.tdim = tdim
         print(dims, repeats, tdim)
         # Initialize all necessary Voigt and inverse-Voigt mappings based on the
         # unique dimensions
@@ -76,6 +77,28 @@ class SparseSymbolicTensor(SymbolicTensor):
         # print('system=', system)
         sol, pivots = system.rref()
         return sol, pivots
+    
+    def interpret_solution(self, sol, pivots):
+        if not(SDM == type(sol.rep)):
+            sol = sol.to_sparse()
+        expanded_full_indices = self.expanded_full_indices
+        total_vars = 3**self.tdim
+        unique_vars = len(expanded_full_indices)
+        zero_vars = 0
+        solrep = sol.rep
+        for i, pivot in enumerate(pivots):
+            num_equiv_vars = self.prod(len(val) for val in expanded_full_indices[pivot])
+            unique_vars -= 1
+            if len(solrep[i]) > 1:
+                # The variables corresponding to this pivot are nonzero
+                pass
+            else:
+                print("solrep[i]={}, expanded_full_indices[pivot][0]={}".format(solrep[i], expanded_full_indices[pivot][0]))
+                # The variables corresponding to this pivot must be zero
+                zero_vars += num_equiv_vars
+        print('total_vars={}, zero_vars={}'.format(total_vars, zero_vars))
+        nonzero_vars = total_vars - zero_vars
+        return nonzero_vars, unique_vars
 
     @staticmethod
     def assemble_matrix(indices, symops, func, domain=None):
@@ -88,8 +111,8 @@ class SparseSymbolicTensor(SymbolicTensor):
         ncols = len(indices)
         nrows = len(symops) * ncols
         # Generator for rows needs to return the absolute and local positions
-        zero = domain.zero
-        print('zero=', zero, '=', zero.__repr__())
+        # zero = domain.zero
+        # print('zero=', zero, '=', zero.__repr__())
         one = domain.one
         def rows_gen(symops):
             iglobal = 0
