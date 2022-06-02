@@ -53,11 +53,11 @@ class SparseSymbolicTensor(SymbolicTensor):
         major_and_full_syms = [self.major_and_full_syms(dim, repeats)
                                for (dim, repeats) in red_indices]
         major_syms = [val[0] for val in major_and_full_syms]
-        print('major_syms = ', major_syms)
+        # print('major_syms = ', major_syms)
         full_syms =  [val[1] for val in major_and_full_syms]
-        print('full_syms = ', full_syms)
+        # print('full_syms = ', full_syms)
         expanded_full_indices = tuple(product(*full_syms))
-        print('expanded_full_indices=', expanded_full_indices)
+        # print('expanded_full_indices=', expanded_full_indices)
         self.expanded_full_indices = expanded_full_indices
         # self.assemble_matrix(expanded_full_indices, symops)
 #         major_indices_voigt = [vals[0] for vals in major_syms]
@@ -72,10 +72,14 @@ class SparseSymbolicTensor(SymbolicTensor):
         #     symop = symops[0]
         # Convert all of the symmetry operators to the desired domain
         newsymops = [self.convert_symop(symop, domain) for symop in symops]
+        print("Start assemble matrix")
         system = self.assemble_matrix(self.expanded_full_indices, newsymops, 
                                       self.form_matrix_entry, domain)
+        print("Finish assemble matrix")
         # print('system=', system)
+        print("Start RREF")
         sol, pivots = system.rref()
+        print("Finish RREF")
         return sol, pivots
     
     def interpret_solution(self, sol, pivots):
@@ -86,8 +90,9 @@ class SparseSymbolicTensor(SymbolicTensor):
         unique_vars = len(expanded_full_indices)
         zero_vars = 0
         solrep = sol.rep
+        prod = self.prod
         for i, pivot in enumerate(pivots):
-            num_equiv_vars = self.prod(len(val) for val in expanded_full_indices[pivot])
+            num_equiv_vars = prod(len(val) for val in expanded_full_indices[pivot])
             unique_vars -= 1
             if len(solrep[i]) > 1:
                 # The variables corresponding to this pivot are nonzero
@@ -130,6 +135,7 @@ class SparseSymbolicTensor(SymbolicTensor):
                     row[j] = val
             if len(row) > 0:
                 entries[iglobal] = row
+        print("Create drep")
         drep = SDM(entries, (nrows, ncols), domain=domain)
         dmatrix = DomainMatrix.from_rep(drep)
         return dmatrix
@@ -141,8 +147,19 @@ class SparseSymbolicTensor(SymbolicTensor):
                      for row in symop)
     
     @staticmethod
-    def prod(iterable):
-        return reduce(mul, iterable)
+    def prod(iterable, zero=0):
+        # res = zero + 1
+        # for val in iterable:
+        #     # print('type(val)={}'.format(type(val)))
+        #     if val:
+        #         res *= val
+        #     else:
+        #         return zero
+        # return res
+        itercopy = list(iterable)
+        if not all(itercopy):
+            return zero
+        return reduce(mul, itercopy)
     
     @staticmethod
     def form_matrix_entry(i, j, full_indices, symop, one=1):
@@ -164,13 +181,13 @@ class SparseSymbolicTensor(SymbolicTensor):
                 # print('iicol[{}]={}', icol[0])
         # The following three lines are equivalent to the nested for loops above.
         prod = SparseSymbolicTensor.prod
-        val = prod(sum(prod(symop[iiirow][iiicol] for iiirow, iiicol 
-                            in zip(irow[0], iicol)) for iicol in icol)
-                   for irow, icol in zip(full_indices[i], full_indices[j]))
+        zero = one * 0
+        val = prod((sum(prod((symop[iiirow][iiicol] for iiirow, iiicol 
+                            in zip(irow[0], iicol)), zero) for iicol in icol)
+                   for irow, icol in zip(full_indices[i], full_indices[j])), zero)
         # for col in cols:
         #     val += reduce(mul, (symop[irow][icol] for irow, icol in zip(row, col)))
         if i == j:
-            # TODO: we should figure out what unity is in the algebra in `symop`
             val -= one
         return val
 
@@ -250,17 +267,17 @@ class SparseSymbolicTensor(SymbolicTensor):
         # values.  We then convert the sets to lists so that they can be sorted.
         voigtmap = {key: sort_lists_convert2tuples(set(permutations(val)))
                     for key, val in ivm[dim_voigt].items()}
-        print('voigtmap=', voigtmap)
+        # print('voigtmap=', voigtmap)
         voigt_indices = range(num_voigt)
-        print('voigt_indices=', voigt_indices)
+        # print('voigt_indices=', voigt_indices)
         unique_indices = tuple(combinations_with_replacement(voigt_indices, num_repeats))
-        print('unique_indices=', unique_indices)
+        # print('unique_indices=', unique_indices)
         major_indices = tuple(list(set(tuple(permutations(indices)))) for indices in unique_indices)
-        print('major_indices=', major_indices)
+        # print('major_indices=', major_indices)
         # print(len(unique_indices), len(major_indices))
         full_indices = tuple(expand2full(voigtmap, indices)
                              for indices in major_indices)
-        print('full_indices=', full_indices)
+        # print('full_indices=', full_indices)
         return major_indices, full_indices
         # print('len(unique_indices)=', len(unique_indices))
         # print('len(major_indices)=', len(unique_indices))

@@ -138,12 +138,14 @@ class TestSparseSymbolicTensor(unittest.TestCase):
 #         assert_array_equal(approx, exact)
 
     def test_interpret_solution(self):
-        sst = SparseSymbolicTensor('aa', 'c')
+        sst = SparseSymbolicTensor('AAAAAA', 'c')
         sg = RedSgSymOps()
         symops = sg("3dm")
-        symops = sg("2")
+        symops = sg("622")
         print('symops=', symops)
         domain = QQ.algebraic_field(sqrt(3))
+        # symops = sg("mm2")
+        # domain = QQ
         sol, pivots = sst.apply_symmetry(symops, domain)
         nonzero_vars, unique_vars = sst.interpret_solution(sol, pivots)
         print('nonzero_vars = {}, unique_vars={}'.format(nonzero_vars, unique_vars))
