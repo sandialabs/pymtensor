@@ -88,21 +88,25 @@ class SparseSymbolicTensor(SymbolicTensor):
         expanded_full_indices = self.expanded_full_indices
         total_vars = 3**self.tdim
         unique_vars = len(expanded_full_indices)
-        zero_vars = 0
+        nonzero_vars = 0
         solrep = sol.rep
         prod = self.prod
+        zero_vars = 0
+        print('len(pivots)=', len(pivots))
         for i, pivot in enumerate(pivots):
             num_equiv_vars = prod(len(val) for val in expanded_full_indices[pivot])
             unique_vars -= 1
             if len(solrep[i]) > 1:
                 # The variables corresponding to this pivot are nonzero
-                pass
+                nonzero_vars += 1
             else:
+                zero_vars += 1
                 print("solrep[i]={}, expanded_full_indices[pivot][0]={}".format(solrep[i], expanded_full_indices[pivot][0]))
                 # The variables corresponding to this pivot must be zero
-                zero_vars += num_equiv_vars
-        print('total_vars={}, zero_vars={}'.format(total_vars, zero_vars))
-        nonzero_vars = total_vars - zero_vars
+                # zero_vars += 1#num_equiv_vars
+        # print('total_vars={}, zero_vars={}'.format(total_vars, zero_vars))
+        nonzero_vars += unique_vars
+        print('zero_vars=', zero_vars)
         return nonzero_vars, unique_vars
 
     @staticmethod
